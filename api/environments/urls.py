@@ -5,6 +5,8 @@ from features.views import FeatureStateViewSet
 from integrations.amplitude.views import AmplitudeConfigurationViewSet
 from integrations.heap.views import HeapConfigurationViewSet
 from integrations.mixpanel.views import MixpanelConfigurationViewSet
+from integrations.pendo.views import PendoConfigurationViewSet
+from integrations.rudderstack.views import RudderstackConfigurationViewSet
 from integrations.segment.views import SegmentConfigurationViewSet
 
 from .identities.traits.views import TraitViewSet
@@ -57,6 +59,16 @@ environments_router.register(
     r"integrations/mixpanel",
     MixpanelConfigurationViewSet,
     basename="integrations-mixpanel",
+)
+environments_router.register(
+    r"integrations/rudderstack",
+    RudderstackConfigurationViewSet,
+    basename="integrations-rudderstack",
+)
+environments_router.register(
+    r"integrations/pendo",
+    PendoConfigurationViewSet,
+    basename="integrations-pendo",
 )
 identity_router = routers.NestedSimpleRouter(
     environments_router, r"identities", lookup="identity"

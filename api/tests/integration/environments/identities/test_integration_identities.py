@@ -2,9 +2,9 @@ import json
 from unittest import mock
 
 import pytest
-from django.urls import reverse
+from django.conf import settings
+from django.urls import base, reverse
 from rest_framework import status
-
 from tests.integration.helpers import create_feature_with_api
 
 variant_1_value = "variant-1-value"
@@ -149,12 +149,19 @@ def test_get_feature_states_for_identity_only_makes_one_query_to_get_mv_feature_
             ],
         )
 
-    # When we make a request to get the flags for the identity, 11 queries are made
+    base_number_of_queries = 4
+    number_of_integrations = len(
+        list(
+            filter(lambda app: app.startswith("integrations."), settings.INSTALLED_APPS)
+        )
+    )
+
+    # When we make a request to get the flags for the identity, 12 queries are made
     # (although 4 of these are made in a separate thread)
     # TODO: can we reduce the number of queries?!
     base_url = reverse("api-v1:sdk-identities")
     url = f"{base_url}?identifier={identity_identifier}"
-    with django_assert_num_queries(11):
+    with django_assert_num_queries(base_number_of_queries + number_of_integrations):
         first_identity_response = sdk_client.get(url)
 
     # Now, if we add another feature
@@ -170,7 +177,7 @@ def test_get_feature_states_for_identity_only_makes_one_query_to_get_mv_feature_
     )
 
     # Then one fewer db queries are made (since the environment is now cached)
-    with django_assert_num_queries(10):
+    with django_assert_num_queries(base_number_of_queries + number_of_integrations - 1):
         second_identity_response = sdk_client.get(url)
 
     # Finally, we check that the requests were successful and we got the correct number
