@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import copy
 import logging
 import typing
 
@@ -14,8 +15,10 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django_lifecycle import (
     AFTER_CREATE,
+    AFTER_DELETE,
     AFTER_SAVE,
     BEFORE_CREATE,
+    BEFORE_DELETE,
     LifecycleModel,
     hook,
 )
@@ -246,6 +249,11 @@ class FeatureState(LifecycleModel, models.Model):
             ),
         ]
         ordering = ["id"]
+
+    def delete(self, *args, **kwargs):
+        instance = copy.copy(self)
+        super(FeatureState, self).delete(*args, **kwargs)
+        trigger_feature_state_change_webhooks(instance, deleted=True)
 
     def __gt__(self, other):
         """
