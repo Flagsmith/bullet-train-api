@@ -15,7 +15,6 @@ from custom_auth.oauth.serializers import (
 from custom_auth.serializers import CustomTokenSerializer
 
 logger = logging.getLogger(__name__)
-
 AUTH_ERROR_MESSAGE = "An error occurred authenticating with {}"
 GITHUB_AUTH_ERROR_MESSAGE = AUTH_ERROR_MESSAGE.format("GITHUB")
 GOOGLE_AUTH_ERROR_MESSAGE = AUTH_ERROR_MESSAGE.format("GOOGLE")

@@ -129,6 +129,7 @@ INSTALLED_APPS = [
     "integrations.segment",
     "integrations.heap",
     "integrations.mixpanel",
+    "integrations.slack",
     # Rate limiting admin endpoints
     "axes",
     "telemetry",
@@ -460,3 +461,7 @@ ENABLE_ADMIN_ACCESS_USER_PASS = env.bool("ENABLE_ADMIN_ACCESS_USER_PASS", defaul
 # Set this flag to prevent traits being stored for all Organisations within the application
 # Useful for data sensitive installations that dont want persistent traits.
 DEFAULT_ORG_STORE_TRAITS_VALUE = env.bool("DEFAULT_ORG_STORE_TRAITS_VALUE", True)
+
+# Slack Integration
+SLACK_CLIENT_ID = env.str("SLACK_CLIENT_ID", default="")
+SLACK_CLIENT_SECRET = env.str("SLACK_CLIENT_SECRET", default="")
