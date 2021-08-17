@@ -81,3 +81,14 @@ def get_json_response(client: APIClient, url: str, query_params: dict) -> dict:
     if query_params:
         url = f"{url}?{urlencode(query_params)}"
     return client.get(url).json()
+
+
+def update_feature_state_with_api(client: APIClient, data: dict):
+    feature_state = data["id"]
+    fs_update_url = reverse(
+        "api-v1:features:featurestates-detail", args=[feature_state]
+    )
+    response = client.put(
+        fs_update_url, data=json.dumps(data), content_type="application/json"
+    )
+    return response.json()

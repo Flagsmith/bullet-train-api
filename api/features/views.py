@@ -4,6 +4,7 @@ import coreapi
 from app_analytics.influxdb_wrapper import get_multiple_event_list_for_feature
 from django.conf import settings
 from django.core.cache import caches
+from django.db.models import Max
 from django.utils.decorators import method_decorator
 from drf_yasg2 import openapi
 from drf_yasg2.utils import swagger_auto_schema
@@ -129,20 +130,25 @@ class FeatureStateViewSet(viewsets.ModelViewSet):
         else:
             return FeatureStateSerializerCreate
 
+    def get_base_qs(self):
+        environment = get_object_or_404(
+            self.request.user.get_permitted_environments(["VIEW_ENVIRONMENT"]),
+            api_key=self.kwargs["environment_api_key"],
+        )
+        queryset = FeatureState.objects.filter(environment=environment)
+        if self.request.query_params.get("feature"):
+            queryset = queryset.filter(
+                feature__id=int(self.request.query_params.get("feature"))
+            )
+        return queryset
+
     def get_queryset(self):
         """
         Override queryset to filter based on provided URL parameters.
         """
-        environment_api_key = self.kwargs["environment_api_key"]
         identity_pk = self.kwargs.get("identity_pk")
-        environment = get_object_or_404(
-            self.request.user.get_permitted_environments(["VIEW_ENVIRONMENT"]),
-            api_key=environment_api_key,
-        )
-
-        queryset = FeatureState.objects.filter(
-            environment=environment, feature_segment=None
-        )
+        queryset = self.get_base_qs()
+        queryset = queryset.filter(feature_segment=None).select_related("feature")
 
         if identity_pk:
             queryset = queryset.filter(identity__pk=identity_pk)
@@ -151,12 +157,19 @@ class FeatureStateViewSet(viewsets.ModelViewSet):
         else:
             queryset = queryset.filter(identity=None, feature_segment=None)
 
-        if self.request.query_params.get("feature"):
-            queryset = queryset.filter(
-                feature__id=int(self.request.query_params.get("feature"))
-            )
-
         return queryset
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        queryset = self.get_base_qs()
+        # Add emptry order by to force group by to happen on feature__id
+        feature_updated_at_cache = list(
+            queryset.values("feature__id")
+            .annotate(updated_at=Max("updated_at"))
+            .order_by()
+        )
+        context.update({"feature_updated_at_cache": feature_updated_at_cache})
+        return context
 
     def get_environment_from_request(self):
         """
@@ -216,7 +229,7 @@ class FeatureStateViewSet(viewsets.ModelViewSet):
                 )
 
             return Response(
-                FeatureStateSerializerBasic(feature_state).data,
+                self.get_serializer(feature_state).data,
                 status=status.HTTP_201_CREATED,
                 headers=headers,
             )

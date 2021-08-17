@@ -231,7 +231,7 @@ class FeatureState(LifecycleModel, models.Model):
         default=None,
         on_delete=models.CASCADE,
     )
-
+    updated_at = models.DateTimeField(auto_now=True)
     enabled = models.BooleanField(default=False)
     history = HistoricalRecords()
 

@@ -1,3 +1,4 @@
+from django.utils import timezone
 from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
@@ -141,10 +142,19 @@ class FeatureStateSerializerBasic(WritableNestedModelSerializer):
     multivariate_feature_state_values = MultivariateFeatureStateValueSerializer(
         many=True, required=False
     )
+    # TODO: better variable name
+    days_since_feature_last_updated = serializers.SerializerMethodField()
 
     class Meta:
         model = FeatureState
         fields = "__all__"
+
+    def get_days_since_feature_last_updated(self, obj) -> int:
+        cache = self.context.get("feature_updated_at_cache")
+        updated_at = [
+            x["updated_at"] for x in cache if x["feature__id"] == obj.feature.pk
+        ][0]
+        return (timezone.now() - updated_at).days
 
     def get_feature_state_value(self, obj):
         return obj.get_feature_state_value(identity=self.context.get("identity"))
@@ -268,6 +278,7 @@ class GetInfluxDataQuerySerializer(serializers.Serializer):
 
 class WritableNestedFeatureStateSerializer(FeatureStateSerializerBasic):
     feature_state_value = FeatureStateValueSerializer(required=False)
+    days_since_feature_last_updated = None
 
     class Meta(FeatureStateSerializerBasic.Meta):
         extra_kwargs = {"environment": {"required": True}}

@@ -9,3 +9,4 @@ black
 pip-tools
 responses
 pre-commit
+freezegun

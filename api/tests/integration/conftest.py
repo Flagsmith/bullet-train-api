@@ -1,5 +1,6 @@
 import json
 import uuid
+from typing import Callable, Mapping
 
 import pytest
 from django.test import Client as DjangoClient
@@ -35,7 +36,7 @@ def organisation(admin_client):
 
 
 @pytest.fixture()
-def project(admin_client, organisation):
+def project(admin_client, organisation) -> int:
     project_data = {"name": "Test Project", "organisation": organisation}
     url = reverse("api-v1:projects:project-list")
     response = admin_client.post(url, data=project_data)
