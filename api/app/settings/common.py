@@ -129,6 +129,7 @@ INSTALLED_APPS = [
     "integrations.segment",
     "integrations.heap",
     "integrations.mixpanel",
+    "integrations.rudderstack",
     # Rate limiting admin endpoints
     "axes",
     "telemetry",

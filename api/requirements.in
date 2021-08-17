@@ -39,3 +39,4 @@ django-lifecycle
 drf-writable-nested
 django-filter
 dataclasses
+rudder-sdk-python==1.0.0b1
