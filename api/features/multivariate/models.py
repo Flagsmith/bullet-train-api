@@ -67,6 +67,21 @@ class MultivariateFeatureStateValue(LifecycleModelMixin, models.Model):
                 self._get_invalid_percentage_allocation_error_message()
             )
 
+    def validate_unique(self, exclude=None):
+        super(MultivariateFeatureStateValue, self).validate_unique(exclude=None)
+        if (
+            self.__class__.objects.filter(
+                feature_state=self.feature_state,
+                multivariate_feature_option=self.multivariate_feature_option,
+            )
+            .exclude(id=self.id)
+            .exists()
+        ):
+            raise ValidationError(
+                "MultivariateFeatureStateValue already exists for that FeatureState "
+                "and MultivariateFeatureOption combination."
+            )
+
     def get_siblings(self) -> QuerySet:
         # TODO: add tests
         siblings = self.feature_state.multivariate_feature_state_values.all()
