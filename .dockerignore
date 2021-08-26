@@ -1,0 +1,13 @@
+*/node_modules
+npm-debug.log
+.dockerignore
+.git
+docker-compose*.yml
+Dockerfile
+.tool-versions
+.env*
+.venv*
+.idea
+.elasticbeanstalk
+.ebignore
+.ebextensions

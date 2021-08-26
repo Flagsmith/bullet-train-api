@@ -4,11 +4,19 @@
 
 version: '3'
 services:
+    db:
+        image: postgres:11.12-alpine
+        environment:
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: flagsmith
+        container_name: flagsmith_postgres
+
     api:
-        image: flagsmith/flagsmith-api:v2.7.1
+        image: flagsmith/flagsmith:latest
         environment:
             DJANGO_ALLOWED_HOSTS: '*' # Change this in production
             DATABASE_URL: postgresql://postgres:password@db:5432/flagsmith
+            DISABLE_INFLUXDB_FEATURES: 1 # Comment out to enable InfluxDB
             # INFLUXDB_URL: http://influxdb:8086
             # INFLUXDB_BUCKET: flagsmith_api
             # INFLUXDB_ORG: # Add your influx org id here - see readme.md
@@ -20,28 +28,7 @@ services:
         links:
             - db:db
             # - influxdb:influxdb
-        container_name: flagsmith_api
-
-    frontend:
-        image: flagsmith/flagsmith-frontend:v2.7.0
-        environment:
-            # You might need to change the 2 host names below depending on your docker dns setup
-            API_URL: http://localhost:8000/api/v1/
-            ASSET_URL: http://localhost:8080/
-            DISABLE_INFLUXDB_FEATURES: 1 # Comment out to enable InfluxDB
-            FLAGSMITH: 4vfqhypYjcPoGGu8ByrBaj # This is the production Flagsmith API key
-        ports:
-            - '8080:8080'
-        links:
-            - api:api
-        container_name: flagsmith_frontend
-
-    db:
-        image: postgres:11.12-alpine
-        environment:
-            POSTGRES_PASSWORD: password
-            POSTGRES_DB: flagsmith
-        container_name: flagsmith_postgres
+        container_name: flagsmith
 
     # InfluxDB requires additional setup - please see https://docs.flagsmith.com/deployment-overview/#influxdb
     # Note that InfluxDB is optional, but enabling it will provide additional functionality to the Flagsmith platform

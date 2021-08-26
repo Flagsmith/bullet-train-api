@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description"
+        content="Manage your Feature Flags, Feature Toggles and Remote Config in your Mobile, React, React Native, Java, Javascript (Node) and Python projects." />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/ini.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+    <script src="https://browser.sentry-cdn.com/4.3.0/bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.0/js/msal.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"
+        integrity="sha384-THPy051/pYDQGanwU6poAc/hOdQxjnOEXzbT+OuUAFqNqFjL+4IGLBgCJC3ZOShY" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.2.0/js/tether.min.js"
+        integrity="sha384-Plbmg8JY28KFelvJVai01l8WyZzrYWG825m+cZ0eDDS1f7d/js6ikvy1+X+guPIB" crossorigin="anonymous">
+    </script>
+    <!--Project.js overrides-->
+    <script src="/static/project-overrides.js"></script>
+    <style>
+        @font-face {
+            font-family: 'OpenSans';
+            src: local('OpenSans'),
+                url('/fonts/OpenSans-Regular.ttf') format('ttf'),
+                url('/fonts/OpenSans-Regular.woff2') format('woff2'),
+                url('/fonts/OpenSans-Regular.woff') format('woff');
+            font-weight: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: local('OpenSans'),
+                url('/fonts/OpenSans-Regular.woff2') format('woff2'),
+                url('/fonts/OpenSans-Regular.woff') format('woff');
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: local('OpenSans'),
+                url('/fonts/OpenSans-Light.woff2') format('woff2'),
+                url('/fonts/OpenSans-Light.woff') format('woff');
+            font-weight: 300;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: local('OpenSans'),
+                url('/fonts/OpenSans-Light.ttf') format('ttf'),
+                url('/fonts/OpenSans-Light.woff2') format('woff2'),
+                url('/fonts/OpenSans-Light.woff') format('woff');
+            font-weight: 100;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: local('OpenSans'),
+                url('/fonts/OpenSans-Light.ttf') format('ttf'),
+                url('/fonts/OpenSans-Light.woff2') format('woff2'),
+                url('/fonts/OpenSans-Light.woff') format('woff');
+            font-weight: 200;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: local('OpenSans'),
+                url('/fonts/OpenSans-Light.ttf') format('ttf'),
+                url('/fonts/OpenSans-Light.woff2') format('woff2'),
+                url('/fonts/OpenSans-Light.woff') format('woff');
+            font-weight: bold;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: local('OpenSans'),
+                url('/fonts/OpenSans-Bold.ttf') format('ttf'),
+                url('/fonts/OpenSans-Bold.woff2') format('woff2'),
+                url('/fonts/OpenSans-Bold.woff') format('woff');
+            font-weight: bold;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: local('OpenSans'),
+                url('/fonts/OpenSans-SemiBold.ttf') format('ttf'),
+                url('/fonts/OpenSans-SemiBold.woff2') format('woff2'),
+                url('/fonts/OpenSans-SemiBold.woff') format('woff');
+            font-weight: 500;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: local('OpenSans'),
+                url('/fonts/OpenSans-Bold.ttf') format('ttf'),
+                url('/fonts/OpenSans-Bold.woff2') format('woff2'),
+                url('/fonts/OpenSans-Bold.woff') format('woff');
+            font-weight: 600;
+            font-display: swap;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,700,800,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+
+    <title>Flagsmith - Feature Flags, Feature Toggles and Remote Config - Ship features with confidence</title>
+    <link rel="shortcut icon" href="/images/favicon.ico">
+    <!-- CSS added here by Webpack -->
+</head>
+
+</head>
+
+<body>
+    <div id="app"></div>
+    <div id="toast"></div>
+    <div id="modal"></div>
+    <div id="confirm"></div>
+    <!--This is inserted by webpack in production-->
+
+    <div class="e2e" id="e2e-request"></div>
+    <div class="e2e" id="e2e-error"></div>
+    <!-- JS added here by Webpack -->
+</body>
+
+</body>
+<script type="text/javascript">
+    _linkedin_partner_id = "{{linkedin}}";
+    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+    window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+</script>
+<script type="text/javascript">
+    (function () {
+        var s = document.getElementsByTagName("script")[0];
+        var b = document.createElement("script");
+        b.type = "text/javascript";
+        b.async = true;
+        b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+        s.parentNode.insertBefore(b, s);
+    })();
+</script> <noscript> <img height="1" width="1" style="display:none;" alt=""
+        src="https://px.adsbooof.linkedin.com/collect/?pid={{ linkedin_api_key }}&fmt=gif" /> </noscript>
+
+</html>

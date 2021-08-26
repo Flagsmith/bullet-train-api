@@ -1,0 +1,62 @@
+name: Platform Publish Docker Images
+
+on:
+    push:
+        branches:
+            - main
+        tags:
+            - '*'
+
+jobs:
+    build-dockerhub:
+        runs-on: ubuntu-latest
+        name: Platform Publish Docker Image
+
+        steps:
+            - name: Cloning repo
+              uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
+
+            - name: Write git info to Docker image
+              run: |
+                  cd api
+                  echo ${{ env.GITHUB_REF_SLUG }} > CI_COMMIT_REF_NAME
+                  echo ${GITHUB_SHA} > CI_COMMIT_SHA
+                  echo ${{ steps.meta-build.outputs.tags }} > IMAGE_TAG
+
+            - name: Docker metadata
+              id: meta
+              uses: docker/metadata-action@v3
+              with:
+                  images: |
+                      flagsmith/flagsmith
+                  flavor: |
+                      latest=${{ startsWith(github.ref, 'refs/heads/main') }}
+                  tags: |
+                      type=ref,event=branch
+                      type=semver,pattern={{version}}
+                      type=semver,pattern={{major}}.{{minor}}
+
+            - name: Set up QEMU
+              uses: docker/setup-qemu-action@v1
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v1
+
+            - name: Login to DockerHub
+              uses: docker/login-action@v1
+              with:
+                  username: ${{ secrets.DOCKERHUB_USERNAME }}
+                  password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+            - name: Build and push
+              id: docker_build
+              uses: docker/build-push-action@v2
+              with:
+                  file: Dockerfile
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+
+            - name: Image digest
+              run: echo ${{ steps.docker_build.outputs.digest }}
