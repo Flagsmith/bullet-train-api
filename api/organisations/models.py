@@ -70,6 +70,15 @@ class Organisation(models.Model):
             self.has_subscription() and 0 < self.subscription.max_seats < self.num_seats
         )
 
+    def over_plan_and_free_seats_limit(self):
+        if self.has_subscription():
+            return (
+                self.has_subscription()
+                and 0 < self.subscription.max_seats < self.num_seats
+            )
+        else:
+            return self.num_seats > 1
+
     def reset_alert_status(self):
         self.alerted_over_plan_limit = False
         self.save()

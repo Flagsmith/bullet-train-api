@@ -45,6 +45,7 @@
               <th>ID</th>
               <th>Name</th>
               <th>Plan</th>
+              <th>Users</th>
               <th>Seats</th>
               <th>Projects</th>
               <th>Flags</th>
@@ -56,11 +57,12 @@
           </thead>
           <tbody>
             {% for org in object_list %}
-            <tr>
+            <tr{% if org.over_plan_and_free_seats_limit %} class="table-warning"{% endif %}>
               <td>{{org.id}}</td>
               <td><a href="/sales-dashboard/organisations/{{org.id}}">{{org.name}}</a></td>
               <td>{{org.subscription.plan|default:"Free"}}</td>
               <td>{{org.num_users}}</td>
+              <td>{{org.subscription.max_seats|default:1}}</td>
               <td>{{org.num_projects}}</td>
               <td>{{org.num_features}}</td>
               <td>{{org.num_segments}}</td>
