@@ -21,10 +21,15 @@ createTestCafe()
         testcafe = tc;
         await new Promise((resolve) => {
             process.env.PORT = 3000;
-            server = fork('./api/index');
-            server.on('message', () => {
-                resolve();
-            });
+            console.log(process.env.E2E_LOCAL)
+            if(process.env.E2E_LOCAL) {
+                resolve()
+            } else {
+                server = fork('./api/index');
+                server.on('message', () => {
+                    resolve();
+                });
+            }
         });
         const runner = testcafe.createRunner()
         const args = process.argv.splice(2).map(value => value.toLowerCase());

@@ -3,7 +3,7 @@ import { Identity } from 'common/types/responses'
 import { useUpdateIdentityMutation } from 'common/services/useIdentity'
 import Button from './base/forms/Button'
 import ErrorMessage from './ErrorMessage'
-import classNames from 'classnames';
+import classNames from 'classnames'
 
 type EditIdentityType = {
   data: Identity
@@ -24,9 +24,9 @@ const EditIdentity: FC<EditIdentityType> = ({ data, environmentId }) => {
   const handleBlur = () => {
     if (aliasRef.current) {
       const updatedAlias = (aliasRef.current.textContent || '')
-          .replace(/\n/g, ' ')
-          .trim()
-          .toLowerCase()
+        .replace(/\n/g, ' ')
+        .trim()
+        .toLowerCase()
 
       aliasRef.current.textContent = alias
       setAlias(updatedAlias)
@@ -45,27 +45,26 @@ const EditIdentity: FC<EditIdentityType> = ({ data, environmentId }) => {
 
   const handleFocus = () => {
     if (!alias) {
-      aliasRef.current.textContent = ''; // Clear the content
+      aliasRef.current.textContent = '' // Clear the content
     }
 
     // Ensure that aliasRef.current has at least one child node (a text node)
     if (aliasRef.current && aliasRef.current.childNodes.length === 0) {
-      aliasRef.current.appendChild(document.createTextNode(''));
+      aliasRef.current.appendChild(document.createTextNode(''))
     }
 
     if (aliasRef.current) {
-      const selection = window.getSelection();
-      const range = document.createRange();
+      const selection = window.getSelection()
+      const range = document.createRange()
 
-      const textLength = aliasRef.current.textContent?.length || 0;
-      range.setStart(aliasRef.current.childNodes[0], textLength);
-      range.collapse(true);
+      const textLength = aliasRef.current.textContent?.length || 0
+      range.setStart(aliasRef.current.childNodes[0], textLength)
+      range.collapse(true)
 
-      selection?.removeAllRanges();
-      selection?.addRange(range);
+      selection?.removeAllRanges()
+      selection?.addRange(range)
     }
-  };
-
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLSpanElement>) => {
     if (e.key === 'Enter') {
@@ -85,7 +84,10 @@ const EditIdentity: FC<EditIdentityType> = ({ data, environmentId }) => {
 
       // Restore cursor position
       const newRange = document.createRange()
-      newRange.setStart(aliasRef.current.childNodes[0], Math.min(cursorPosition, lowerCaseText.length))
+      newRange.setStart(
+        aliasRef.current.childNodes[0],
+        Math.min(cursorPosition, lowerCaseText.length),
+      )
       newRange.collapse(true)
 
       selection?.removeAllRanges()
@@ -94,33 +96,33 @@ const EditIdentity: FC<EditIdentityType> = ({ data, environmentId }) => {
   }
 
   return (
-      <>
-        <span
-            ref={aliasRef}
-            className={classNames('fw-normal',{'text-muted':!alias})}
-            contentEditable={true}
-            suppressContentEditableWarning={true}
-            onBlur={handleBlur}
-            onKeyDown={handleKeyDown}
-            onInput={handleInput}
-            role='textbox'
-            aria-label='Alias'
-        >
-          {alias || 'None'}
-        </span>
-        <Button
-            disabled={!data}
-            iconSize={18}
-            theme='text'
-            className='ms-2 text-primary'
-            iconRightColour='primary'
-            iconRight={'edit'}
-            onClick={handleFocus}
-        >
-          Edit
-        </Button>
-        <ErrorMessage>{error}</ErrorMessage>
-      </>
+    <>
+      <span
+        ref={aliasRef}
+        className={classNames('fw-normal', { 'text-muted': !alias })}
+        contentEditable={true}
+        suppressContentEditableWarning={true}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        onInput={handleInput}
+        role='textbox'
+        aria-label='Alias'
+      >
+        {alias || 'None'}
+      </span>
+      <Button
+        disabled={!data}
+        iconSize={18}
+        theme='text'
+        className='ms-2 text-primary'
+        iconRightColour='primary'
+        iconRight={'edit'}
+        onClick={handleFocus}
+      >
+        Edit
+      </Button>
+      <ErrorMessage>{error}</ErrorMessage>
+    </>
   )
 }
 

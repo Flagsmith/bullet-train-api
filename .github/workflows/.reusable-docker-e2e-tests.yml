@@ -28,8 +28,11 @@ on:
         required: false
         default: ubuntu-latest
     secrets:
-      gcr-token:
+      GCR_TOKEN:
         description: A token to use for logging into Github Container Registry. If not provided, login does not occur.
+        required: false
+      SLACK_TOKEN:
+        description: A token to use uploading test failures to slack.
         required: false
 
 jobs:
@@ -43,7 +46,7 @@ jobs:
       id-token: write
 
     env:
-      GCR_TOKEN: ${{ secrets.gcr-token }}
+      GCR_TOKEN: ${{ secrets.GCR_TOKEN }}
 
     steps:
       - name: Cloning repo

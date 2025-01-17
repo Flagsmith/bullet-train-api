@@ -134,7 +134,7 @@ global.Select = class extends PureComponent {
                   : `${props['data-test']}-option-${index}`
               }
             >
-              .
+              {option.label}
             </a>
           ))}
       </div>

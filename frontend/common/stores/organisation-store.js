@@ -377,6 +377,7 @@ store.dispatcherIndex = Dispatcher.register(store, (payload) => {
       controller.invalidateInviteLink(action.link)
       break
     case Actions.LOGOUT:
+      store.model = null
       store.id = null
       break
     default:

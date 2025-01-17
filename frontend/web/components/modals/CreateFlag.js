@@ -46,6 +46,7 @@ import { saveFeatureWithValidation } from 'components/saveFeatureWithValidation'
 import PlanBasedBanner from 'components/PlanBasedAccess'
 import FeatureHistory from 'components/FeatureHistory'
 import WarningMessage from 'components/WarningMessage'
+import { getPermission } from 'common/services/usePermission'
 
 const CreateFlag = class extends Component {
   static displayName = 'CreateFlag'
@@ -220,26 +221,37 @@ const CreateFlag = class extends Component {
   userOverridesPage = (page) => {
     if (Utils.getIsEdge()) {
       if (!Utils.getShouldHideIdentityOverridesTab(ProjectStore.model)) {
-        data
-          .get(
-            `${Project.api}environments/${this.props.environmentId}/edge-identity-overrides?feature=${this.props.projectFlag.id}&page=${page}`,
-          )
-          .then((userOverrides) => {
-            this.setState({
-              userOverrides: userOverrides.results.map((v) => ({
-                ...v.feature_state,
-                identity: {
-                  id: v.identity_uuid,
-                  identifier: v.identifier,
-                },
-              })),
-              userOverridesPaging: {
-                count: userOverrides.count,
-                currentPage: page,
-                next: userOverrides.next,
-              },
-            })
-          })
+        getPermission(getStore(), {
+          id: this.props.environmentId,
+          level: 'environment',
+          permissions: 'VIEW_IDENTITIES',
+        }).then((permissions) => {
+          if (permissions?.length) {
+            data
+              .get(
+                `${Project.api}environments/${this.props.environmentId}/edge-identity-overrides?feature=${this.props.projectFlag.id}&page=${page}`,
+              )
+              .then((userOverrides) => {
+                this.setState({
+                  userOverrides: userOverrides.results.map((v) => ({
+                    ...v.feature_state,
+                    identity: {
+                      id: v.identity_uuid,
+                      identifier: v.identifier,
+                    },
+                  })),
+                  userOverridesPaging: {
+                    count: userOverrides.count,
+                    currentPage: page,
+                    next: userOverrides.next,
+                  },
+                })
+              })
+              .catch((e) => {
+                console.log('Cannot retrieve user overrides')
+              })
+          }
+        })
       }
 
       return
@@ -589,7 +601,7 @@ const CreateFlag = class extends Component {
           {!identity && this.state.tags && (
             <FormGroup className='mb-3 setting'>
               <InputGroup
-                title={identity ? 'Tags' : 'Tags'}
+                title={'Tags'}
                 tooltip={Constants.strings.TAGS_DESCRIPTION}
                 component={
                   <AddEditTags

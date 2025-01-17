@@ -140,7 +140,8 @@ jobs:
       concurrency: ${{ matrix.args.concurrency }}
       tests: ${{ matrix.args.tests }}
     secrets:
-      gcr-token: ${{ needs.permissions-check.outputs.can-write == 'true' && secrets.GITHUB_TOKEN || '' }}
+      GCR_TOKEN: ${{ needs.permissions-check.outputs.can-write == 'true' && secrets.GITHUB_TOKEN || '' }}
+      SLACK_TOKEN: ${{ needs.permissions-check.outputs.can-write == 'true' && secrets.SLACK_TOKEN || '' }}
 
     strategy:
       matrix:
@@ -153,4 +154,25 @@ jobs:
           - tests: segment-part-3 signup flag invite project
             concurrency: 2
           - tests: versioning
+            concurrency: 1
+
+  run-e2e-tests-private-cloud:
+    if: needs.permissions-check.outputs.can-write == 'true' && !cancelled()
+    needs: [permissions-check, docker-build-private-cloud, docker-build-e2e]
+    uses: ./.github/workflows/.reusable-docker-e2e-tests.yml
+    with:
+      runs-on: ${{ matrix.runs-on }}
+      e2e-image: ${{ needs.docker-build-e2e.outputs.image }}
+      api-image: ${{ needs.docker-build-private-cloud.outputs.image }}
+      concurrency: ${{ matrix.args.concurrency }}
+      tests: ${{ matrix.args.tests }}
+    secrets:
+      GCR_TOKEN: ${{ needs.permissions-check.outputs.can-write == 'true' && secrets.GITHUB_TOKEN || '' }}
+      SLACK_TOKEN: ${{ needs.permissions-check.outputs.can-write == 'true' && secrets.SLACK_TOKEN || '' }}
+
+    strategy:
+      matrix:
+        runs-on: [ubuntu-latest, ARM64-2c]
+        args:
+          - tests: organisation-permission environment-permission project-permission roles
             concurrency: 1

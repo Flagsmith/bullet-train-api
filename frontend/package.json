@@ -11,6 +11,7 @@
     "husky:install": "cd ../ && husky install",
     "test:bundle:staging": "cross-env E2E=1 ENV=staging npm run bundle",
     "test:dev": "cross-env NODE_ENV=production E2E=true E2E_DEV=true ts-node -T ./e2e/index.cafe",
+    "test:devlocal": "cross-env NODE_ENV=production E2E_LOCAL=true E2E_CONCURRENCY=1 E2E=true E2E_DEV=true ts-node -T ./e2e/index.cafe",
     "test:devBundle": "npm run test:bundle && npm run test:dev",
     "test": "npm run test:bundle && cross-env NODE_ENV=production E2E=true ts-node -T ./e2e/index.cafe",
     "test:staging": "npm run test:bundle:staging && cross-env NODE_ENV=production E2E=true ENV=staging ts-node -T ./e2e/index.cafe",

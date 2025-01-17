@@ -92,6 +92,8 @@ jobs:
             concurrency: 2
           - tests: versioning
             concurrency: 1
+          - tests: organisation-permission environment-permission project-permission roles
+            concurrency: 1
 
   docker-publish-api:
     needs: [docker-build-api, run-e2e-tests]

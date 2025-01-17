@@ -10,7 +10,11 @@ import projectTest from './tests/project-test'
 import { testSegment1, testSegment2, testSegment3 } from './tests/segment-test'
 import initialiseTests from './tests/initialise-tests'
 import flagTests from './tests/flag-tests'
-import versioningTests from './tests/versioning-tests';
+import versioningTests from './tests/versioning-tests'
+import organisationPermissionTest from './tests/organisation-permission-test'
+import projectPermissionTest from './tests/project-permission-test'
+import environmentPermissionTest from './tests/environment-permission-test'
+import rolesTest from './tests/roles-test'
 
 require('dotenv').config()
 
@@ -122,5 +126,20 @@ test('Project', async () => {
 
 test('Versioning', async () => {
   await versioningTests()
+  await logout()
+})
+
+test('Organisation-permission', async () => {
+  await organisationPermissionTest()
+  await logout()
+})
+
+test('Project-permission', async () => {
+  await projectPermissionTest()
+  await logout()
+})
+
+test('Environment-permission', async () => {
+  await environmentPermissionTest()
   await logout()
 })

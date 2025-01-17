@@ -69,7 +69,6 @@ const UsersAndPermissionsInner: FC<UsersAndPermissionsInnerType> = ({
   subscriptionMeta,
   users,
 }) => {
-
   const paymentsEnabled = Utils.getFlagsmithHasFeature('payments_enabled')
   const verifySeatsLimit = Utils.getFlagsmithHasFeature(
     'verify_seats_limit_for_invite_links',
@@ -496,7 +495,7 @@ const UsersAndPermissionsInner: FC<UsersAndPermissionsInnerType> = ({
                             }
                             return (
                               <Row
-                                data-test={`user-${i}`}
+                                data-test={`user-${email}`}
                                 space
                                 className={classNames('list-item clickable')}
                                 onClick={onEditClick}

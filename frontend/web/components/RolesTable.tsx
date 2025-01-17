@@ -85,7 +85,7 @@ const RolesTable: FC<RolesTableType> = ({ organisationId, users }) => {
             disabled={!isAdmin}
             className='mr-2'
             id='btn-invite'
-            data-test='btn-create-role-modal'
+            data-test='create-role'
             onClick={() => createRole()}
             type='button'
           >

@@ -354,6 +354,7 @@ const Utils = Object.assign({}, require('./base/_utils'), {
     if (plan && plan.includes('start-up')) {
       return planNames.startup
     }
+
     if (
       global.flagsmithVersion?.backend.is_enterprise ||
       (plan && plan.includes('enterprise'))

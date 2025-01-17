@@ -276,6 +276,9 @@ store.dispatcherIndex = Dispatcher.register(store, (payload) => {
     case Actions.EDIT_PROJECT:
       controller.editProject(action.id, action.project)
       break
+    case Actions.LOGOUT:
+      store.model = null
+      break
     default:
   }
 })

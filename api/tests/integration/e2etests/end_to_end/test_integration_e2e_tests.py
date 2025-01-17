@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from organisations.models import Subscription
-from organisations.subscriptions.constants import SCALE_UP
+from organisations.subscriptions.constants import ENTERPRISE
 from users.models import FFAdminUser
 
 
@@ -43,7 +43,7 @@ def test_e2e_teardown(settings, db) -> None:
         organisation__in=e2e_user.organisations.all()
     ):
         assert subscription.max_seats == 8
-        assert subscription.plan == SCALE_UP
+        assert subscription.plan == ENTERPRISE
         assert subscription.subscription_id == "test_subscription_id"
 
 

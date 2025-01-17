@@ -22,7 +22,7 @@ from organisations.permissions.permissions import (
     CREATE_PROJECT,
     MANAGE_USER_GROUPS,
 )
-from organisations.subscriptions.constants import SCALE_UP
+from organisations.subscriptions.constants import ENTERPRISE
 from projects.models import Project, UserProjectPermission
 from users.models import FFAdminUser, UserPermissionGroup
 
@@ -129,7 +129,7 @@ def seed_data() -> None:
     ]
     # Upgrade organisation seats
     Subscription.objects.filter(organisation__in=org_admin.organisations.all()).update(
-        max_seats=8, plan=SCALE_UP, subscription_id="test_subscription_id"
+        max_seats=8, plan=ENTERPRISE, subscription_id="test_subscription_id"
     )
 
     # Create projects and environments

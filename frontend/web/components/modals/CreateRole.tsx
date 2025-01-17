@@ -377,8 +377,7 @@ const CreateRole: FC<CreateRoleType> = ({
         <div className='text-right mb-2'>
           <Button
             onClick={() => save()}
-            data-test='update-role-btn'
-            id='update-role-btn'
+            data-test='save-role'
             disabled={isSaving || !roleName}
           >
             {isSaving && isEdit

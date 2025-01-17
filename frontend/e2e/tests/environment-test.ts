@@ -1,11 +1,12 @@
 import {
   byId,
   click,
+  createEnvironment,
   log,
   login,
   setText,
   waitForElementVisible,
-} from '../helpers.cafe'
+} from '../helpers.cafe';
 import { PASSWORD, E2E_USER } from '../config'
 
 export default async function () {
@@ -14,9 +15,7 @@ export default async function () {
   await click('#project-select-0')
   log('Create environment')
   await click('#create-env-link')
-  await setText('[name="envName"]', 'Staging')
-  await click('#create-env-btn')
-  await waitForElementVisible(byId('switch-environment-staging-active'))
+  await createEnvironment('Staging')
   log('Edit Environment')
   await click('#env-settings-link')
   await setText("[name='env-name']", 'Internal')
