@@ -28,8 +28,7 @@ class Token extends Component {
             theme='outline'
             className='ml-2'
             onClick={() => {
-              navigator.clipboard.writeText(this.props.token)
-              toast('Copied')
+              Utils.copyToClipboard(this.props.token)
             }}
           >
             Copy

@@ -69,7 +69,6 @@ const UsersAndPermissionsInner: FC<UsersAndPermissionsInnerType> = ({
   subscriptionMeta,
   users,
 }) => {
-
   const paymentsEnabled = Utils.getFlagsmithHasFeature('payments_enabled')
   const verifySeatsLimit = Utils.getFlagsmithHasFeature(
     'verify_seats_limit_for_invite_links',
@@ -378,7 +377,7 @@ const UsersAndPermissionsInner: FC<UsersAndPermissionsInnerType> = ({
                                           theme='secondary'
                                           size='small'
                                           onClick={() => {
-                                            navigator.clipboard.writeText(
+                                            Utils.copyToClipboard(
                                               `${
                                                 document.location.origin
                                               }/invite/${
@@ -386,8 +385,8 @@ const UsersAndPermissionsInner: FC<UsersAndPermissionsInnerType> = ({
                                                   (f) => f.role === role,
                                                 )?.hash
                                               }`,
+                                              'Link copied',
                                             )
-                                            toast('Link copied')
                                           }}
                                         >
                                           Copy Invite Link

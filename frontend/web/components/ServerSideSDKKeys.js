@@ -203,8 +203,7 @@ class ServerSideSDKKeys extends Component {
                 </div>
                 <Button
                   onClick={() => {
-                    navigator.clipboard.writeText(key)
-                    toast('Copied')
+                    Utils.copyToClipboard(key)
                   }}
                   className='ml-2 btn-with-icon'
                 >

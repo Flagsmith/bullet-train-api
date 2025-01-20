@@ -227,7 +227,7 @@ class CompareEnvironments extends Component {
                             </div>
                             <Button
                               onClick={() => {
-                                Utils.copyFeatureName(p.projectFlagLeft.name)
+                                Utils.copyToClipboard(p.projectFlagLeft.name)
                               }}
                               theme='icon'
                               className='ms-2 me-2'

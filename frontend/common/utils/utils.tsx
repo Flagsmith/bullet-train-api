@@ -2,7 +2,6 @@ import AccountStore from 'common/stores/account-store'
 import ProjectStore from 'common/stores/project-store'
 import Project from 'common/project'
 import {
-  ChangeSet,
   ContentType,
   FeatureState,
   FeatureStateValue,
@@ -21,7 +20,6 @@ import _ from 'lodash'
 import ErrorMessage from 'components/ErrorMessage'
 import WarningMessage from 'components/WarningMessage'
 import Constants from 'common/constants'
-import Format from './format'
 import { defaultFlags } from 'common/stores/default-flags'
 import Color from 'color'
 
@@ -124,10 +122,6 @@ const Utils = Object.assign({}, require('./base/_utils'), {
     return res
   },
 
-  copyFeatureName: (featureName: string) => {
-    navigator.clipboard.writeText(featureName)
-    toast('Copied to clipboard')
-  },
   displayLimitAlert(type: string, percentage: number | undefined) {
     const envOrProject =
       type === 'segment overrides' ? 'environment' : 'project'
@@ -180,10 +174,20 @@ const Utils = Object.assign({}, require('./base/_utils'), {
 
     return conditions.find((v) => v.value === operator)
   },
+  
+  copyToClipboard: async (value: string, successMessage?: string, errorMessage?: string) => {
+    try {
+      await navigator.clipboard.writeText(value)
+      toast(successMessage ?? 'Copied to clipboard')
+    } catch (error) {
+      toast(errorMessage ?? 'Failed to copy to clipboard')
+      throw error
+    }
+  },
   /** Checks whether the specified flag exists, which is different from the flag being enabled or not. This is used to
    *  only add behaviour to Flagsmith-on-Flagsmith flags that have been explicitly created by customers.
    */
-  flagsmithFeatureExists(flag: string) {
+flagsmithFeatureExists(flag: string) {
     return Object.prototype.hasOwnProperty.call(flagsmith.getAllFlags(), flag)
   },
   getApproveChangeRequestPermission() {
@@ -275,6 +279,7 @@ const Utils = Object.assign({}, require('./base/_utils'), {
   getFlagsmithValue(key: string) {
     return flagsmith.getValue(key)
   },
+
   getIdentitiesEndpoint(_project: ProjectType) {
     const project = _project || ProjectStore.model
     if (project && project.use_edge_identities) {
@@ -289,7 +294,6 @@ const Utils = Object.assign({}, require('./base/_utils'), {
       defaultFlags.integration_data,
     )
   },
-
   getIsEdge() {
     const model = ProjectStore.model as null | ProjectType
 
@@ -333,6 +337,7 @@ const Utils = Object.assign({}, require('./base/_utils'), {
       }
     }
   },
+
   getOrganisationHomePage(id?: string) {
     const orgId = id || AccountStore.getOrganisation()?.id
     if (!orgId) {
@@ -340,7 +345,6 @@ const Utils = Object.assign({}, require('./base/_utils'), {
     }
     return `/organisation/${orgId}/projects`
   },
-
   getPlanName: (plan: string) => {
     if (plan && plan.includes('free')) {
       return planNames.free
@@ -548,7 +552,6 @@ const Utils = Object.assign({}, require('./base/_utils'), {
       id ? `${id}/` : ''
     }`
   },
-
   getViewIdentitiesPermission() {
     return 'VIEW_IDENTITIES'
   },
@@ -590,6 +593,7 @@ const Utils = Object.assign({}, require('./base/_utils'), {
     if (typeof x !== 'number') return ''
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   },
+
   openChat() {
     // @ts-ignore
     if (typeof $crisp !== 'undefined') {
@@ -606,7 +610,6 @@ const Utils = Object.assign({}, require('./base/_utils'), {
   removeElementFromArray(array: any[], index: number) {
     return array.slice(0, index).concat(array.slice(index + 1))
   },
-
   renderWithPermission(permission: boolean, name: string, el: ReactNode) {
     return permission ? (
       el
@@ -627,7 +630,6 @@ const Utils = Object.assign({}, require('./base/_utils'), {
     const hasStaleFlagsPermission = Utils.getPlansPermission('STALE_FLAGS')
     return tag?.type === 'STALE' && !hasStaleFlagsPermission
   },
-
   validateMetadataType(type: string, value: any) {
     switch (type) {
       case 'int': {

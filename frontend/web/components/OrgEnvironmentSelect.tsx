@@ -8,6 +8,7 @@ import { sortBy } from 'lodash'
 import PanelSearch from './PanelSearch'
 import Input from './base/forms/Input'
 import Button from './base/forms/Button'
+import Utils from 'common/utils/utils'
 
 type OrgProjectSelectType = {
   organisationId?: string | null
@@ -116,7 +117,7 @@ const OrgEnvironmentSelect: FC<OrgProjectSelectType> = ({
               style={{ width: 80 }}
               className='btn-secondary ml-2 mr-4'
               onClick={() => {
-                navigator.clipboard.writeText(projectId)
+                Utils.copyToClipboard(projectId)
               }}
             >
               Copy
@@ -138,7 +139,7 @@ const OrgEnvironmentSelect: FC<OrgProjectSelectType> = ({
               style={{ width: 80 }}
               className='btn-secondary ml-2 mr-4'
               onClick={() => {
-                navigator.clipboard.writeText(environmentId)
+                Utils.copyToClipboard(environmentId)
               }}
             >
               Copy

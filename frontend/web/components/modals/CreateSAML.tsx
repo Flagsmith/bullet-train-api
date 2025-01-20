@@ -59,9 +59,8 @@ const CreateSAML: FC<CreateSAML> = ({ organisationId, samlName }) => {
     `./auth/saml/${name}/response/`,
     new Request(Project.api).url, // Project.api can be relative, e.g. /api/v1/
   ).href
-  const copyAcsUrl = async () => {
-    await navigator.clipboard.writeText(acsUrl)
-    toast('Copied to clipboard')
+  const copyAcsUrl = () => {
+    Utils.copyToClipboard(acsUrl)
   }
 
   useEffect(() => {

@@ -220,7 +220,7 @@ const UserPage: FC<UserPageType> = (props) => {
           <span className='standard-case'>{projectFlag.name}</span>
           <Button
             onClick={() => {
-              Utils.copyFeatureName(projectFlag.name)
+              Utils.copyToClipboard(projectFlag.name)
             }}
             theme='icon'
             className='ms-2'
@@ -701,7 +701,7 @@ const UserPage: FC<UserPageType> = (props) => {
                                                       onClick={(e) => {
                                                         e?.stopPropagation()
                                                         e?.currentTarget?.blur()
-                                                        Utils.copyFeatureName(
+                                                        Utils.copyToClipboard(
                                                           projectFlag.name,
                                                         )
                                                       }}

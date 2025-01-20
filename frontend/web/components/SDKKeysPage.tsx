@@ -4,6 +4,7 @@ import Input from './base/forms/Input'
 import Icon from './Icon'
 import ServerSideSDKKeys from './ServerSideSDKKeys'
 import PageTitle from './PageTitle'
+import Utils from 'common/utils/utils'
 
 type SDKKeysType = {
   match: {
@@ -49,8 +50,7 @@ const SDKKeysPage: FC<SDKKeysType> = ({
           </Flex>
           <Button
             onClick={() => {
-              navigator.clipboard.writeText(environmentId)
-              toast('Copied')
+              Utils.copyToClipboard(environmentId)
             }}
             className='ml-2 btn-with-icon'
           >

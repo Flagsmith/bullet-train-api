@@ -303,7 +303,7 @@ const CompareIdentities: FC<CompareIdentitiesType> = ({
                         </Tooltip>
                       </span>
                       <Button
-                        onClick={() => Utils.copyFeatureName(name)}
+                        onClick={() => Utils.copyToClipboard(name)}
                         theme='icon'
                         className='ms-2 me-2'
                       >

@@ -66,7 +66,7 @@ class TheComponent extends Component {
     const { projectFlag } = this.props
     e?.stopPropagation()?.()
     e?.currentTarget?.blur?.()
-    Utils.copyFeatureName(projectFlag.name)
+    Utils.copyToClipboard(projectFlag.name)
   }
   confirmRemove = (projectFlag, cb) => {
     openModal2(
@@ -98,7 +98,7 @@ class TheComponent extends Component {
         {this.props.permission ? 'Edit Feature' : 'Feature'}: {projectFlag.name}
         <Button
           onClick={() => {
-            Utils.copyFeatureName(projectFlag.name)
+            Utils.copyToClipboard(projectFlag.name)
           }}
           theme='icon'
           className='ms-2'
