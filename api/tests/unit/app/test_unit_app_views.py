@@ -15,6 +15,7 @@ def test_get_version_info(api_client: APIClient) -> None:
     assert response.json() == {
         "ci_commit_sha": "unknown",
         "image_tag": "unknown",
+        "has_email_provider": False,
         "is_enterprise": False,
         "is_saas": False,
     }
