@@ -9,8 +9,7 @@ import AddMetadataToEntity from 'components/metadata/AddMetadataToEntity'
 import { getSupportedContentType } from 'common/services/useSupportedContentType'
 import { getStore } from 'common/store'
 import ProjectProvider, {
-  CreateEnvType,
-  ProjectProviderType,
+  CreateEnvType
 } from 'common/providers/ProjectProvider'
 import AccountStore from 'common/stores/account-store'
 import Utils from 'common/utils/utils'
@@ -138,7 +137,7 @@ const CreateEnvironmentPage: React.FC<CreateEnvironmentPageProps> = ({
                       />
                     </CondensedRow>
                     <CondensedRow>
-                      {project?.environments?.length && (
+                      {!!project?.environments?.length && (
                         <InputGroup
                           tooltip='This will copy feature enabled states and remote config values from the selected environment.'
                           title='Clone from environment'
