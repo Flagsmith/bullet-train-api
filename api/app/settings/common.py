@@ -1033,8 +1033,8 @@ DISABLE_INVITE_LINKS = env.bool("DISABLE_INVITE_LINKS", False)
 PREVENT_SIGNUP = env.bool("PREVENT_SIGNUP", default=False)
 PREVENT_EMAIL_PASSWORD = env.bool("PREVENT_EMAIL_PASSWORD", default=False)
 COOKIE_AUTH_ENABLED = env.bool("COOKIE_AUTH_ENABLED", default=False)
-USE_SECURE_COOKIES = env.bool("USE_SECURE_COOKIES", default=True)
-COOKIE_SAME_SITE = env.str("COOKIE_SAME_SITE", default="none")
+USE_SECURE_COOKIES = env.bool("USE_SECURE_COOKIES", default=False)
+COOKIE_SAME_SITE = env.str("COOKIE_SAME_SITE", default=None)
 
 # CORS settings
 
