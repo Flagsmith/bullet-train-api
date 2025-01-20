@@ -43,7 +43,19 @@ class DynamoIdentityWrapper(BaseDynamoWrapper):
     def put_item(self, identity_dict: dict):
         self.table.put_item(Item=identity_dict)
 
-    def write_identities(self, identities: Iterable["Identity"]):
+    def write_identities(
+        self,
+        identities: Iterable["Identity"],
+        return_filter: typing.Callable[[dict[str, typing.Any]], bool] = lambda _: False,
+    ) -> list[dict[str, typing.Any]]:
+        """
+        Write the given ORM identities to the DynamoDB table.
+
+        If return_filter is passed, return the identity documents
+        matching the given filter function. By default, no objects
+        are returned to limit memory usage.
+        """
+        _return_objects = []
         with self.table.batch_writer() as batch:
             for identity in identities:
                 identity_document = map_identity_to_identity_document(identity)
@@ -55,6 +67,11 @@ class DynamoIdentityWrapper(BaseDynamoWrapper):
                     )
                     continue
                 batch.put_item(Item=identity_document)
+
+                if return_filter(identity_document):
+                    _return_objects.append(identity_document)
+
+        return _return_objects
 
     def get_item(self, composite_key: str) -> typing.Optional[dict]:
         return self.table.get_item(Key={"composite_key": composite_key}).get("Item")
