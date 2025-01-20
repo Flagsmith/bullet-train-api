@@ -5,6 +5,13 @@ from typing import TypedDict
 
 import shortuuid
 
+from app.settings.common import (
+    AWS_SES_REGION_ENDPOINT,
+    EMAIL_BACKEND,
+    EMAIL_HOST_USER,
+    SENDGRID_API_KEY,
+)
+
 UNKNOWN = "unknown"
 VERSIONS_INFO_FILE_LOCATION = ".versions.json"
 
@@ -12,6 +19,7 @@ VERSIONS_INFO_FILE_LOCATION = ".versions.json"
 class VersionInfo(TypedDict):
     ci_commit_sha: str
     image_tag: str
+    has_email_provider: bool
     is_enterprise: bool
     is_saas: bool
 
@@ -27,6 +35,18 @@ def is_enterprise() -> bool:
 
 def is_saas() -> bool:
     return pathlib.Path("./SAAS_DEPLOYMENT").exists()
+
+
+def has_email_provider() -> bool:
+    match EMAIL_BACKEND:
+        case "django.core.mail.backends.smtp.EmailBackend":
+            return EMAIL_HOST_USER is not None
+        case "sgbackend.SendGridBackend":
+            return SENDGRID_API_KEY is not None
+        case "django_ses.SESBackend":
+            return AWS_SES_REGION_ENDPOINT is not None
+        case _:
+            return False
 
 
 @lru_cache
@@ -45,6 +65,7 @@ def get_version_info() -> VersionInfo:
     version_json = version_json | {
         "ci_commit_sha": _get_file_contents("./CI_COMMIT_SHA"),
         "image_tag": image_tag,
+        "has_email_provider": has_email_provider(),
         "is_enterprise": is_enterprise(),
         "is_saas": is_saas(),
     }
