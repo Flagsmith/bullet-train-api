@@ -3,26 +3,29 @@ title: Organisations
 sidebar_position: 110
 ---
 
-The Organisations data migration option is useful when you want to migrate your Flagsmith Organisation from one location
-to another. It's not a useful tool to merge Flagsmith data into another Flagsmith instance, for that use-case consider
-[feature flag importing](/system-administration/importing-and-exporting/features).
+You can import and export an entire Flagsmith organisation. This lets you:
 
-If, for example, you wanted to move from self hosting Flagsmith to our SaaS version, the process looks something like
-this:
+* Migrate from self-hosted Flagsmith to SaaS, or the other way around.
+* Migrate from one self-hosted Flagsmith instance to another.
 
-- **Step 1.** Contact Flagsmith support to confirm you would like to migrate from self hosted to cloud
-- **Step 2.** Generate a JSON file from your self hosted instance (more information below)
-- **Step 3.** Send the JSON file to Flagsmith support
-- **Step 4.** Flagsmith support will import the JSON file into our cloud offering
-- **Step 5.** Register and re-add your users and passwords (Flagsmith support will need to assign at least one
-  organisation administrator to the newly imported organisation)
+:::note
 
-:::tip
-
-You can import and export from any combination of self-hosted/SaaS to and from self-hosted/SaaS. If you need to go to or
-from our SaaS platform, you will need to get in touch with us to operate that part of the process for you.
+Merging data between existing Flagsmith organisations **is not** supported. A new Flagsmith organisation is created as
+part of the import process.
 
 :::
+
+## Prerequisites
+
+Importing or exporting an organisation requires shell access to any machine or container where Flagsmith is 
+installed and can connect to your Flagsmith database.
+
+Organisations can be imported or exported using the local file system or S3-compatible storage.
+
+Importing or exporting an organisation does not require downtime. However, it is a one-time operation that does not
+continuously migrate data. You should plan a convenient time to perform imports and exports.
+
+**If you need to copy an organisation from or to Flagsmith SaaS, please contact Flagsmith support.**
 
 ## What is exported?
 
@@ -33,150 +36,220 @@ We **will** export the following entities:
 - Segments
 - Identities
 - Integrations
+- Client-side and server-side SDK keys
 
 We **will not** export the following entities:
 
-- Flagsmith Users that log into the Dashboard and manage Flagsmith
+- Flagsmith users
+- Flag analytics
 - Audit logs
 - Change requests
 - Scheduled flag changes
+- Admin API keys
+- Groups and custom roles
+- SAML configurations and login method restrictions
 
-## Dealing with existing data
+## Running shell commands
 
-The data migration process is designed to import data into a completely new Organisation within the target Flagsmith
-instance. This target instance could be a completely new installation, or it could have existing data in it, in separate
-Organisations.
+Importing or exporting is performed using shell commands on a Flagsmith container that has access to your Flagsmith 
+database. You can also create a new container just for this operation.
 
-This process does **not** support importing data into an existing Organisation.
+<details>
+
+<summary>Kubernetes</summary>
+
+To run an interactive shell inside an existing API container, use `kubectl exec` replacing `YOUR_API_SERVICE` with the 
+name of your Flagsmith API Kubernetes service:
+
+```
+kubectl exec -it service/YOUR_API_SERVICE --container flagsmith-api -- sh
+```
+
+To find your Flagsmith API Kubernetes service, you can use `kubectl get services`:
+
+```
+kubectl get services --selector app.kubernetes.io/component=api
+```
+
+Putting these two commands together, this one-liner will give you an interactive API shell:
+
+```
+kubectl exec -it  $(kubectl get service --selector app.kubernetes.io/component=api --output name) --container flagsmith-api -- sh
+```
+
+</details>
+
+<details>
+
+<summary>Docker Compose</summary>
+
+Use `docker compose exec` to get an interactive shell inside your API container, replacing `flagsmith` with your 
+Flagsmith API service name from your Compose definition:
+
+```
+docker compose exec -it flagsmith sh
+```
+
+</details>
+
+<details>
+
+<summary>SSH and local environments</summary>
+
+If you have a shell inside a Flagsmith environment, check that you can run `python manage.py`. In containers running 
+Flagsmith images, this file is located in the `/app` directory:
+
+```
+python /app/manage.py health_check
+```
+
+</details>
+
+## Working with files in Flagsmith containers {#files}
+
+You can use the [`kubectl cp`](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_cp/) or 
+[`docker cp`](https://docs.docker.com/reference/cli/docker/container/cp/) commands to copy files to and from Flagsmith
+containers. This lets you import a previously exported organisation, or copy an organisation you just exported to a
+secure location.
+
+<details>
+
+<summary>Kubernetes</summary>
+
+From a Flagsmith API container shell, run the `hostname` command to get the current pod name. For example:
+
+```
+$ hostname
+flagsmith-api-59d68fd74d-4kw2k
+```
+
+Then, from a different machine, use `kubectl cp` to copy the exported file for further processing. For example, this
+command copies a file from your pod's `/tmp` directory to your local machine's home directory:
+
+```
+kubectl cp --container flagsmith-api YOUR_API_POD_NAME:/tmp/organisation-1234.json ~/organisation-1234.json
+```
+
+<h3>Read-only file systems</h3>
+
+In some situations, you may not be able to write to `/tmp` or any directory in the container's root file system. If
+this is the case, attach a writable volume to your API pods. For example, if you are using the Flagsmith Helm chart,
+these values will create an [emptyDir volume](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir) on your
+Flagsmith API pods that can be used for exporting data:
+
+```yaml title="values.yaml"
+api:
+  extraVolumes:
+    - name: exports
+      emptyDir: {}
+  volumeMounts:
+    - name: exports
+      mountPath: /exports
+```
+
+</details>
+
+<details>
+
+<summary>Docker</summary>
+
+From a Flagsmith API container shell, run the `hostname` command to get the container ID. For example:
+
+```
+$ hostname
+6893461b8a7e
+```
+
+Then, from the host machine, you can copy files to/from this container using `docker cp`. For example, this command
+copies an exported organisation from your container's `/tmp` directory into your host machine's current directory:
+
+```
+docker cp 6893461b8a7e:/tmp/organisation-1234.json .
+```
+
+</details>
 
 ## Exporting
 
-The export process involves running a command from a terminal window. This must either be run from a running container
-in your self hosted deployment or, alternatively, you can run a separate container that can connect to the same database
-as your deployed fleet of flagsmith instances. To run the command, you'll also need to find the id of your organisation.
-You can do this through the django admin interface. Information about accessing the admin interface can be found
-[here](/deployment/configuration/django-admin.md). Once you've obtained access to the admin interface, if you browse to
-the 'Organisations' menu item on the left, you should see something along the lines of the following:
+To export your Flagsmith organisation, you need to know its ID. To find an organisation's ID, use one of the 
+following methods:
 
-![Image](/img/organisations-admin.png)
+* From the Flagsmith dashboard, click your organisation name in the top left. The organisation ID is displayed in 
+  the URL bar: `https://flagsmith.example.com/organisation/YOUR_ORGANISATION_ID/...`.
+* From [Django Admin](/deployment/configuration/django-admin), browse to the Organisations section in the sidebar. 
+  Here you can see all of your organisations and their IDs. 
+* If you have an Admin API key, call the
+  [List Organisations API endpoint](https://api.flagsmith.com/api/v1/docs/#/api/api_v1_organisations_list). This 
+  returns all the organisations that your API key is a member of.
 
-The ID you need is the one in brackets after the organisation name, so here it would be 1.
+Once you have shell access and you know the organisation's ID, you can export it to the container's file system or 
+S3-compatible storage.
 
-Once you've obtained the ID of your organisation, you're ready to export the organisation as a JSON file. There are 2
-options as to where to output the organisation export JSON file. Option 1 - local file system, Option 2 - S3 bucket.
-These options are detailed below.
+### Exporting to the local file system
 
-### Option 1 - Local File System
-
-```bash
-python manage.py dumporganisationtolocalfs <organisation-id> <local-file-system-path>
-```
-
-e.g.
+To export the organisation with ID 1234 to a JSON file in the local file system:
 
 ```bash
-python manage.py dumporganisationtolocalfs 1 /tmp/organisation-1.json
+python manage.py dumporganisationtolocalfs 1234 /tmp/organisation-1234.json
 ```
 
-Since this will write to your local file system, you may need to attach a volume to your docker container to be able to
-obtain the file afterwards. There is an example docker-compose file provided below to help guide you to do this.
+Then, [copy the exported JSON file](#files) to a secure location.
 
-```yml
-version: '3'
-services:
- postgres:
-  image: postgres:15.5-alpine
-  environment:
-   POSTGRES_PASSWORD: password
-   POSTGRES_DB: flagsmith
-  container_name: flagsmith_postgres
-  ports:
-   - '5434:5432'
+### Exporting to S3-compatible storage
 
- flagsmith:
-  build:
-   dockerfile: ./Dockerfile
-   context: .
-  environment:
-   DJANGO_ALLOWED_HOSTS: '*'
-   DATABASE_URL: postgresql://postgres:password@postgres:5432/flagsmith
-   ENV: prod
-   ALLOW_REGISTRATION_WITHOUT_INVITE: 'True'
-  ports:
-   - '8000:8000'
-  depends_on:
-   - postgres
-  links:
-   - postgres
-
- flagsmith-fs-exporter:
-  build:
-   dockerfile: ./Dockerfile
-   context: .
-  environment:
-   DATABASE_URL: postgresql://postgres:password@postgres:5432/flagsmith
-  command:
-   - 'dumporganisationtolocalfs'
-   - '1'
-   - '/tmp/flagsmith-exporter/org-1.json'
-  depends_on:
-   - postgres
-   - flagsmith
-  links:
-   - postgres
-  volumes:
-   - '/tmp/flagsmith-exporter:/tmp/flagsmith-exporter'
-```
-
-### Option 2 - S3 bucket
-
-The command you will need to run for this is slightly different as per the following.
+To export the organisation with ID 1234 to a key named `1234.json` in the S3 bucket named `my-bucket`:
 
 ```bash
-python manage.py dumporganisationtos3 <organisation-id> <bucket-name> <key>
+python manage.py dumporganisationtos3 1234 my-bucket 1234.json
 ```
 
-e.g.
-
-```bash
-python manage.py dumporganisationtos3 1 my-export-bucket exports/organisation-1.json
-```
-
-This requires the application to be running with access to an AWS account. If you're running the application in AWS,
-make sure whichever role you are using to run you container has access to read from and write to the given S3 bucket.
-Alternatively, you can provide the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables to refer to an
-IAM user that has access to the S3 bucket.
-
-#### Using localstack to achieve local/test exports with s3 can be done using
-
-[localstack](https://github.com/localstack/localstack) and the
-[service-specific endpoint](https://docs.aws.amazon.com/sdkref/latest/guide/feature-ss-endpoints.html) strategy.
-
-Once running you are able to set a specific url for the s3 service `AWS_ENDPOINT_URL_S3` or for all services
-`AWS_ENDPOINT_URL`.
+You can provide [additional S3 configuration](#s3-configuration) for authentication or to use services other than AWS
+S3.
 
 ## Importing
 
-### Option 1 - Local File System
+You can import an organisation from the local file system or S3-compatible storage.
 
-This is coming soon - see https://github.com/Flagsmith/flagsmith/issues/2512 for more info.
+### Importing from the local file system
 
-### Option 2 - S3 bucket
+To import the organisation exported in the file `/tmp/org-1234.json`, run this command from a Flagsmith container:
 
-```bash
-python manage.py importorganisationfroms3 <bucket-name> <key>
+```
+python manage.py loaddata /tmp/org-1234.json
 ```
 
-e.g.
+### Importing from S3-compatible storage
+
+To import the organisation exported in the key `org-1234.json` of the AWS S3 bucket named `my-bucket`, run this command 
+from a Flagsmith container:
 
 ```bash
-python manage.py importorganisationfroms3 my-export-bucket exports/organisation-1.json
+python manage.py importorganisationfroms3 my-bucket org-1234.json
 ```
 
-#### Using localstack to achieve local/test imports with s3 can be done using
+You can provide [additional S3 configuration](#s3-configuration) for authentication or to use services other than AWS
+S3.
 
-[localstack](https://github.com/localstack/localstack) and the
-[service-specific endpoint](https://docs.aws.amazon.com/sdkref/latest/guide/feature-ss-endpoints.html) strategy.
+### Accessing an imported organisation
 
-Once running you are able to set a specific url for the s3 service `AWS_ENDPOINT_URL_S3` or for all services
-`AWS_ENDPOINT_URL`.
+After you import an organisation, you will need to add your Flagsmith user to it. To do this, edit the imported
+organisation from [Django Admin](/deployment/configuration/django-admin) and add your user to it with Admin permissions:
+
+![](django-admin.png)
+
+## Additional S3 configuration {#s3-configuration}
+
+To provide credentials, set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables before running
+any commands. For example:
+
+```
+export AWS_ACCESS_KEY_ID='abc123'
+export AWS_SECRET_ACCESS_KEY='xyz456'
+```
+
+By default, all commands will interact with buckets hosted on AWS S3. To use other S3-compatible services such as Google
+Cloud Storage, set the `AWS_ENDPOINT_URL_S3` environment variable:
+
+```
+export AWS_ENDPOINT_URL_S3='https://storage.googleapis.com'
+```
