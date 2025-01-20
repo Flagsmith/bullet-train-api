@@ -170,7 +170,7 @@ hubspot-api-client = "^8.2.1"
 djangorestframework-dataclasses = "^1.3.1"
 pyotp = "^2.9.0"
 flagsmith-task-processor = { git = "https://github.com/Flagsmith/flagsmith-task-processor", tag = "v1.2.0" }
-flagsmith-common = { git = "https://github.com/Flagsmith/flagsmith-common", tag = "v1.4.2" }
+flagsmith-common = { git = "https://github.com/Flagsmith/flagsmith-common", branch = "feat/add_version_of_to_rules_and_conditions" }
 tzdata = "^2024.1"
 djangorestframework-simplejwt = "^5.3.1"
 structlog = "^24.4.0"
@@ -197,7 +197,7 @@ flagsmith-ldap = { git = "https://github.com/flagsmith/flagsmith-ldap", tag = "v
 optional = true
 
 [tool.poetry.group.workflows.dependencies]
-workflows-logic = { git = "https://github.com/flagsmith/flagsmith-workflows", tag = "v2.7.5" }
+workflows-logic = { git = "https://github.com/flagsmith/flagsmith-workflows", branch = "feat/add_matches_to_workflows" }
 
 [tool.poetry.group.licensing]
 optional = true

@@ -451,3 +451,268 @@ def test_segment_get_skip_create_audit_log_when_exception(
 
     # Then
     assert result is True
+
+
+def test_saving_rule_with_version_of_set(segment: Segment) -> None:
+    # Given
+    base_rule = SegmentRule.objects.create(segment=segment, type=SegmentRule.ALL_RULE)
+    new_segment = Segment.objects.create(name="NewSegment", project=segment.project)
+
+    # When
+    rule = SegmentRule.objects.create(
+        segment=new_segment, type=SegmentRule.ALL_RULE, version_of=base_rule
+    )
+
+    # Then
+    assert rule.version_of == base_rule
+
+
+def test_saving_condition_with_version_of_set(segment: Segment) -> None:
+    # Given
+    rule1 = SegmentRule.objects.create(segment=segment, type=SegmentRule.ALL_RULE)
+    new_segment = Segment.objects.create(name="NewSegment", project=segment.project)
+    rule2 = SegmentRule.objects.create(
+        segment=new_segment, type=SegmentRule.ALL_RULE, version_of=rule1
+    )
+    condition1 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.1, rule=rule1
+    )
+
+    # When
+    condition2 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.1, rule=rule2, version_of=condition1
+    )
+
+    # Then
+    assert condition2.version_of == condition1
+
+
+def test_assign_matching_rules_to_segment_simple(project: Project) -> None:
+    # Given
+    segment1 = Segment.objects.create(name="Segment1", project=project)
+    segment2 = Segment.objects.create(name="Segment2", project=project)
+    rule1 = SegmentRule.objects.create(segment=segment1, type=SegmentRule.ALL_RULE)
+    rule2 = SegmentRule.objects.create(segment=segment2, type=SegmentRule.ALL_RULE)
+    rule3 = SegmentRule.objects.create(rule=rule1, type=SegmentRule.ALL_RULE)
+    rule4 = SegmentRule.objects.create(rule=rule2, type=SegmentRule.ALL_RULE)
+
+    condition1 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.1, rule=rule3, description="SomeDescription"
+    )
+    condition2 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.2, rule=rule4
+    )
+    # When
+    segment1.assign_matching_rules_to_segment(segment2)
+
+    # Then
+    rule1.refresh_from_db()
+    rule2.refresh_from_db()
+    rule3.refresh_from_db()
+    rule4.refresh_from_db()
+    condition1.refresh_from_db()
+    condition2.refresh_from_db()
+    assert rule1.version_of == rule2
+    assert rule2.version_of is None
+    assert rule3.version_of == rule4
+    assert rule4.version_of is None
+    assert condition1.version_of == condition2
+    assert condition2.version_of is None
+
+
+def test_assign_matching_rules_to_segment_with_condition_operator_mismatch(
+    project: Project,
+) -> None:
+    # Given
+    segment1 = Segment.objects.create(name="Segment1", project=project)
+    segment2 = Segment.objects.create(name="Segment2", project=project)
+    rule1 = SegmentRule.objects.create(segment=segment1, type=SegmentRule.ALL_RULE)
+    rule2 = SegmentRule.objects.create(segment=segment2, type=SegmentRule.ALL_RULE)
+    rule3 = SegmentRule.objects.create(rule=rule1, type=SegmentRule.ALL_RULE)
+    rule4 = SegmentRule.objects.create(rule=rule2, type=SegmentRule.ALL_RULE)
+
+    condition1 = Condition.objects.create(
+        operator=EQUAL, value=0.1, rule=rule3, description="SomeDescription"
+    )
+    condition2 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.2, rule=rule4
+    )
+    # When
+    segment1.assign_matching_rules_to_segment(segment2)
+
+    # Then
+    rule1.refresh_from_db()
+    rule2.refresh_from_db()
+    rule3.refresh_from_db()
+    rule4.refresh_from_db()
+    condition1.refresh_from_db()
+    condition2.refresh_from_db()
+    assert rule1.version_of is None
+    assert rule2.version_of is None
+    assert rule3.version_of is None
+    assert rule4.version_of is None
+    assert condition1.version_of is None
+    assert condition2.version_of is None
+
+
+def test_assign_matching_rules_to_segment_mismatched_rule_type(
+    project: Project,
+) -> None:
+    # Given
+    segment1 = Segment.objects.create(name="Segment1", project=project)
+    segment2 = Segment.objects.create(name="Segment2", project=project)
+    rule1 = SegmentRule.objects.create(segment=segment1, type=SegmentRule.ALL_RULE)
+    rule2 = SegmentRule.objects.create(segment=segment2, type=SegmentRule.NONE_RULE)
+    rule3 = SegmentRule.objects.create(rule=rule1, type=SegmentRule.ALL_RULE)
+    rule4 = SegmentRule.objects.create(rule=rule2, type=SegmentRule.ALL_RULE)
+
+    condition1 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.1, rule=rule3, description="SomeDescription"
+    )
+    condition2 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.2, rule=rule4
+    )
+    # When
+    segment1.assign_matching_rules_to_segment(segment2)
+
+    # Then
+    rule1.refresh_from_db()
+    rule2.refresh_from_db()
+    rule3.refresh_from_db()
+    rule4.refresh_from_db()
+    condition1.refresh_from_db()
+    condition2.refresh_from_db()
+    assert rule1.version_of is None
+    assert rule2.version_of is None
+    assert rule3.version_of is None
+    assert rule4.version_of is None
+    assert condition1.version_of is None
+    assert condition2.version_of is None
+
+
+def test_assign_matching_rules_to_segment_mismatched_sub_rule_type(
+    project: Project,
+) -> None:
+    # Given
+    segment1 = Segment.objects.create(name="Segment1", project=project)
+    segment2 = Segment.objects.create(name="Segment2", project=project)
+    rule1 = SegmentRule.objects.create(segment=segment1, type=SegmentRule.ALL_RULE)
+    rule2 = SegmentRule.objects.create(segment=segment2, type=SegmentRule.ALL_RULE)
+    rule3 = SegmentRule.objects.create(rule=rule1, type=SegmentRule.NONE_RULE)
+    rule4 = SegmentRule.objects.create(rule=rule2, type=SegmentRule.ALL_RULE)
+
+    condition1 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.1, rule=rule3, description="SomeDescription"
+    )
+    condition2 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.2, rule=rule4
+    )
+    # When
+    segment1.assign_matching_rules_to_segment(segment2)
+
+    # Then
+    rule1.refresh_from_db()
+    rule2.refresh_from_db()
+    rule3.refresh_from_db()
+    rule4.refresh_from_db()
+    condition1.refresh_from_db()
+    condition2.refresh_from_db()
+    assert rule1.version_of is None
+    assert rule2.version_of is None
+    assert rule3.version_of is None
+    assert rule4.version_of is None
+    assert condition1.version_of is None
+    assert condition2.version_of is None
+
+
+def test_assign_matching_rules_to_segment_multiple_sub_rules(project: Project) -> None:
+    # Given
+    segment1 = Segment.objects.create(name="Segment1", project=project)
+    segment2 = Segment.objects.create(name="Segment2", project=project)
+    rule1 = SegmentRule.objects.create(segment=segment1, type=SegmentRule.ALL_RULE)
+    rule2 = SegmentRule.objects.create(segment=segment1, type=SegmentRule.ALL_RULE)
+    rule3 = SegmentRule.objects.create(segment=segment2, type=SegmentRule.ALL_RULE)
+    rule4 = SegmentRule.objects.create(segment=segment2, type=SegmentRule.ALL_RULE)
+
+    rule5 = SegmentRule.objects.create(rule=rule1, type=SegmentRule.ALL_RULE)
+    rule6 = SegmentRule.objects.create(rule=rule1, type=SegmentRule.ALL_RULE)
+
+    rule7 = SegmentRule.objects.create(rule=rule2, type=SegmentRule.ALL_RULE)
+    rule8 = SegmentRule.objects.create(rule=rule2, type=SegmentRule.ALL_RULE)
+
+    rule9 = SegmentRule.objects.create(rule=rule3, type=SegmentRule.ALL_RULE)
+    rule10 = SegmentRule.objects.create(rule=rule4, type=SegmentRule.ALL_RULE)
+    rule11 = SegmentRule.objects.create(rule=rule4, type=SegmentRule.ALL_RULE)
+
+    # When
+    segment1.assign_matching_rules_to_segment(segment2)
+
+    # Then
+    rule1.refresh_from_db()
+    rule2.refresh_from_db()
+    rule3.refresh_from_db()
+    rule4.refresh_from_db()
+    rule5.refresh_from_db()
+    rule6.refresh_from_db()
+    rule7.refresh_from_db()
+    rule8.refresh_from_db()
+    rule9.refresh_from_db()
+    rule10.refresh_from_db()
+    assert rule1.version_of == rule3
+    assert rule2.version_of == rule4
+    assert rule3.version_of is None
+    assert rule4.version_of is None
+    assert rule5.version_of == rule9
+    assert rule6.version_of is None
+    assert rule7.version_of == rule10
+    assert rule8.version_of == rule11
+    assert rule9.version_of is None
+    assert rule10.version_of is None
+    assert rule11.version_of is None
+
+
+def test_assign_matching_rules_to_segment_with_multiple_conditions(
+    project: Project,
+) -> None:
+    # Given
+    segment1 = Segment.objects.create(name="Segment1", project=project)
+    segment2 = Segment.objects.create(name="Segment2", project=project)
+
+    rule1 = SegmentRule.objects.create(segment=segment1, type=SegmentRule.ALL_RULE)
+    rule2 = SegmentRule.objects.create(segment=segment2, type=SegmentRule.ALL_RULE)
+    rule3 = SegmentRule.objects.create(rule=rule1, type=SegmentRule.ALL_RULE)
+    rule4 = SegmentRule.objects.create(rule=rule2, type=SegmentRule.ALL_RULE)
+
+    condition1 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.1, rule=rule3, description="SomeDescription"
+    )
+    condition2 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.2, rule=rule3
+    )
+    condition3 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.3, rule=rule4
+    )
+    condition4 = Condition.objects.create(
+        operator=PERCENTAGE_SPLIT, value=0.4, rule=rule4
+    )
+    # When
+    segment1.assign_matching_rules_to_segment(segment2)
+
+    # Then
+    rule1.refresh_from_db()
+    rule2.refresh_from_db()
+    rule3.refresh_from_db()
+    rule4.refresh_from_db()
+    condition1.refresh_from_db()
+    condition2.refresh_from_db()
+    condition3.refresh_from_db()
+    condition4.refresh_from_db()
+
+    assert rule1.version_of == rule2
+    assert rule2.version_of is None
+    assert rule3.version_of == rule4
+    assert rule4.version_of is None
+    assert condition1.version_of == condition3
+    assert condition2.version_of == condition4
+    assert condition3.version_of is None
+    assert condition4.version_of is None
