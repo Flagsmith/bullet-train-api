@@ -4,11 +4,12 @@ from functools import lru_cache
 from typing import TypedDict
 
 import shortuuid
+
 from app.settings.common import (
+    AWS_SES_REGION_ENDPOINT,
     EMAIL_BACKEND,
     EMAIL_HOST_USER,
     SENDGRID_API_KEY,
-    AWS_SES_REGION_ENDPOINT,
 )
 
 UNKNOWN = "unknown"
@@ -46,6 +47,7 @@ def has_email_provider() -> bool:
             return AWS_SES_REGION_ENDPOINT is not None
         case _:
             return False
+
 
 @lru_cache
 def get_version_info() -> VersionInfo:
