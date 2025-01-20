@@ -7,7 +7,7 @@ COMPOSE_PROJECT_NAME ?= flagsmith
 
 DOTENV_OVERRIDE_FILE ?= .env
 
-POETRY_VERSION ?= 1.8.3
+POETRY_VERSION ?= 2.0.1
 
 GUNICORN_LOGGER_CLASS ?= util.logging.GunicornJsonCapableLogger
 

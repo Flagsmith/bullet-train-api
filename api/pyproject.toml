@@ -3,6 +3,17 @@
 # verbose regular expressions by Black.  Use [ ] to denote a significant space
 # character.
 
+[project]
+name = "flagsmith-api"
+version = "2.68.0"
+description = "The API component for the Flagsmith application."
+authors = [
+  { name = "Flagsmith", email = "support@flagsmith.com" },
+]
+readme = "readme.md"
+requires-python = ">=3.11, <3.13"
+dynamic = [ "dependencies" ]
+
 [tool.black]
 line-length = 88
 target-version = ['py310', 'py311']
@@ -99,15 +110,7 @@ skip = ['migrations', '.venv', '.direnv']
 addopts = ['--ds=app.settings.test', '-vvvv', '-p', 'no:warnings']
 console_output_style = 'count'
 
-[tool.poetry]
-name = "flagsmith-api"
-version = "2.68.0"
-description = "The API component for the Flagsmith application."
-authors = ["Flagsmith <support@flagsmith.com>"]
-readme = "readme.md"
-
 [tool.poetry.dependencies]
-python = ">=3.11, <3.13"
 django = "~4.2.18"
 rudder-sdk-python = "~2.0.2"
 segment-analytics-python = "~2.2.3"
@@ -229,5 +232,5 @@ mypy-boto3-dynamodb = "^1.33.0"
 pytest-structlog = "^1.1"
 
 [build-system]
-requires = ["poetry-core>=1.5.0"]
+requires = ["poetry>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
